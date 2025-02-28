@@ -1,0 +1,103 @@
+Here’s a basic Terraform script to create infrastructure on AWS. This example sets up:
+
+A VPC
+A public subnet
+An Internet Gateway
+A security group
+An EC2 instance
+
+
+
+1. Create a new directory for your Terraform configuration files:
+bash
+Copy
+Edit
+mkdir terraform-project
+cd terraform-project
+2. Main Terraform Configuration (main.tf):
+hcl
+Copy
+Edit
+# Specify the provider (AWS in this case)
+provider "aws" {
+  region = "us-east-1"  # You can change the region as needed
+}
+
+# Create a security group
+resource "aws_security_group" "example_sg" {
+  name        = "example-sg"
+  description = "Allow inbound traffic on port 80"
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name = "example-sg"
+  }
+}
+
+# Create an EC2 instance
+resource "aws_instance" "example_instance" {
+  ami             = "ami-0c55b159cbfafe1f0"  # Example AMI ID for Amazon Linux 2 (Update as per your requirement)
+  instance_type   = "t2.micro"
+  security_groups = [aws_security_group.example_sg.name]
+
+  tags = {
+    Name = "example-instance"
+  }
+
+  # Automatically associate an Elastic IP address
+  associate_public_ip_address = true
+}
+3. Variables (variables.tf) (optional):
+hcl
+Copy
+Edit
+variable "aws_region" {
+  description = "The AWS region to deploy into"
+  default     = "us-east-1"
+}
+4. Output Configuration (outputs.tf):
+hcl
+Copy
+Edit
+output "instance_public_ip" {
+  value = aws_instance.example_instance.public_ip
+}
+5. Initialize Terraform:
+Initialize Terraform by running the following command:
+
+bash
+Copy
+Edit
+terraform init
+6. Plan the Infrastructure:
+To see the changes Terraform will make to your infrastructure:
+
+bash
+Copy
+Edit
+terraform plan
+7. Apply the Configuration:
+Apply the configuration to create the infrastructure:
+
+bash
+Copy
+Edit
+terraform apply
+8. Destroy the Infrastructure (when you're done):
+To clean up and destroy the resources you created:
+
+bash
+Copy
+Edit
+terraform destroy
+This is just a simple starting point. You can expand this by adding more resources like RDS, S3 buckets, VPC, IAM roles, etc. Terraform also supports other cloud providers like Azure, GCP, etc., with corresponding provider configurations.
